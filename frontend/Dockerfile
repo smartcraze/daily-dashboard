@@ -1,14 +1,15 @@
 # Build stage
-FROM node:20-alpine AS builder
-
+FROM oven/bun:latest AS builder
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
 
-# Production stage (serve with nginx)
+COPY package*.json ./  
+RUN bun install
+
+COPY . .
+RUN bun run build
+
+# Serve with nginx
 FROM nginx:alpine
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
